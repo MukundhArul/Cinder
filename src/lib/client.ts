@@ -1,4 +1,8 @@
 import { treaty } from '@elysiajs/eden'
 import type { App } from '../app/api/[[...slugs]]/route'
 
-export const client = treaty<App>('localhost:3000').api
+const url = typeof window !== 'undefined'
+    ? window.location.origin
+    : (process.env.NEXT_PUBLIC_APP_URL || 'localhost:3000')
+
+export const client = treaty<App>(url).api
