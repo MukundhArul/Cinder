@@ -3,7 +3,7 @@ import { Elysia, t } from 'elysia'
 import { nanoid } from 'nanoid'
 import { authMiddleware } from './auth'
 import { z } from 'zod'
-import { realtime } from '@/lib/realtime'
+import { realtime, type Message } from '@/lib/realtime'
 const ROOM_TTL_SECONDS = 60 * 10
 
 const rooms = new Elysia({ prefix: '/rooms' }).post("/create", async () => {
@@ -16,6 +16,26 @@ const rooms = new Elysia({ prefix: '/rooms' }).post("/create", async () => {
     await redis.expire(`meta:${roomId}`, ROOM_TTL_SECONDS)
 
     return { roomId }
+}).use(authMiddleware).get("/ttl", async ({ auth }) => {
+    const ttl = await redis.ttl(`meta:${auth.roomId}`)
+    return { ttl: ttl > 0 ? ttl : 0 }
+}, {
+    query: z.object({
+        roomId: z.string(),
+    })
+}).delete("/destroy", async ({ auth }) => {
+
+    await Promise.all([
+        redis.del(`meta:${auth.roomId}`),
+        redis.del(`messages:${auth.roomId}`),
+        redis.del(auth.roomId),
+    ])
+    await realtime.channel(auth.roomId).emit("chat.destroy", { isDestroyed: true, roomId: auth.roomId, token: auth.token })
+    return { success: true }
+}, {
+    query: z.object({
+        roomId: z.string(),
+    })
 })
 
 const messages = new Elysia({ prefix: '/messages' }).use(authMiddleware).post("/", async ({ body, auth, query }) => {
@@ -54,11 +74,24 @@ const messages = new Elysia({ prefix: '/messages' }).use(authMiddleware).post("/
         sender: z.string().max(100),
         text: z.string().max(1000),
     }),
+}).get("/", async ({ auth }) => {
+    const messages = await redis.lrange<Message>(`messages:${auth.roomId}`, 0, -1)
+
+    return {
+        messages: messages.map((m) => ({
+            ...m, token: m.token === auth.token ? auth.token : undefined,
+        }))
+    }
+}, {
+    query: z.object({
+        roomId: z.string(),
+    })
 })
 
 const app = new Elysia({ prefix: '/api' }).use(rooms).use(messages)
 
-export const GET = app.handle
-export const POST = app.handle
+export const GET = app.fetch
+export const POST = app.fetch
+export const DELETE = app.fetch
 
 export type App = typeof app
