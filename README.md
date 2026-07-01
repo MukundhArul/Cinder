@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="public/logo.svg" alt="Cinder Logo" width="150" />
+</div>
+
 # 🔥 Cinder - Real-time Ephemeral Chat
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)

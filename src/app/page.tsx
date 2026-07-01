@@ -53,9 +53,12 @@ function Lobby() {
         </div>)}
 
 
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight text-green-500"> {">"} P R I V A T E . C H A T</h1>
-          <p className="text-sm text-zinc-400">A private , self-destructing chat room.</p>
+        <div className="flex flex-col items-center text-center space-y-4">
+          <img src="/logo.svg" alt="Cinder Logo" className="h-16 w-auto" />
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold tracking-tight text-green-500"> {">"} P R I V A T E . C H A T</h1>
+            <p className="text-sm text-zinc-400">A private , self-destructing chat room.</p>
+          </div>
         </div>
         <div className="border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-md">
           <div className="space-y-5">

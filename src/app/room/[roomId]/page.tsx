@@ -109,7 +109,8 @@ const Page = () => {
 
     return <main className="flex flex-col h-screen max-h-screen overflow-hidden">
         <header className="border-b border-zinc-800 p-4 flex items-center justify-between bg-zinc-900/30">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
+                <img src="/logo.svg" alt="Cinder Logo" className="h-8 w-auto" />
                 <div className="flex flex-col">
                     <span className="text-xs text-zinc-500 uppercase">ROOM ID</span>
                     <div className="flex items-center gap-2"><span className="font-bold text-green-500">
